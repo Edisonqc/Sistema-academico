@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ciclos Académicos - Sistema Académico</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .navbar {
+            background: var(--bg-color);
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: var(--card-bg);
+            height: calc(100vh - 70px);
+            position: fixed;
+            left: 0;
+            top: 70px;
+            border-right: 1px solid var(--border-color);
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+        
+        .sidebar-menu a.active {
+            background: var(--primary-color);
+            color: white;
+            border-left-color: var(--primary-dark);
+        }
+        
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .table-header {
+            display: grid;
+            grid-template-columns: 80px 1fr 120px 120px 120px 100px 120px 120px;
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .table-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 120px 120px 120px 100px 120px 120px;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+        }
+        
+        .table-row:hover {
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-activo {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-inactivo {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-planificado {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .btn-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-action {
+            padding: 0.25rem 0.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .btn-edit {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .price-tag {
+            font-weight: bold;
+            color: var(--success-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="navbar-brand">
+                📚 Ciclos Académicos
+            </div>
+            <div class="navbar-user">
+                <div class="user-info">
+                    <span id="userName">Cargando...</span>
+                    <span id="userRole" style="background: var(--primary-color); color: white; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.8rem;"></span>
+                </div>
+                <button onclick="logout()" class="btn-logout">Cerrar Sesión</button>
+                <button id="themeToggle" class="btn-theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="/superadmin/dashboard.html">📊 Dashboard</a></li>
+                <li><a href="/superadmin/usuarios.html">👥 Gestión de Usuarios</a></li>
+                <li><a href="/superadmin/estudiantes.html">🎓 Estudiantes</a></li>
+                <li><a href="/superadmin/matriculas.html">📝 Matrículas</a></li>
+                <li><a href="/superadmin/ciclos.html" class="active">📚 Ciclos Académicos</a></li>
+                <li><a href="/superadmin/pagos.html">💰 Control de Pagos</a></li>
+                <li><a href="/superadmin/asistencias.html">✅ Asistencias</a></li>
+                <li><a href="/superadmin/reportes.html">📈 Reportes</a></li>
+                <li><a href="/superadmin/seguridad.html">🔐 Seguridad</a></li>
+                <li><a href="/superadmin/configuracion.html">⚙️ Configuración</a></li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container">
+                <div class="header-actions">
+                    <h1>Gestión de Ciclos Académicos</h1>
+                    <button onclick="abrirModalCiclo()" class="btn-primary">
+                        ➕ Nuevo Ciclo Académico
+                    </button>
+                </div>
+                
+                <!-- Estadísticas -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCiclos">0</div>
+                        <div class="stat-label">Total Ciclos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="ciclosActivos">0</div>
+                        <div class="stat-label">Ciclos Activos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="matriculasCiclo">0</div>
+                        <div class="stat-label">Matrículas Activas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="ingresosCiclo">S/ 0</div>
+                        <div class="stat-label">Ingresos Totales</div>
+                    </div>
+                </div>
+                
+                <!-- Tabla de Ciclos -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <div>ID</div>
+                        <div>Nombre</div>
+                        <div>Fecha Inicio</div>
+                        <div>Fecha Fin</div>
+                        <div>Precio</div>
+                        <div>Matrículas</div>
+                        <div>Estado</div>
+                        <div>Acciones</div>
+                    </div>
+                    <div id="tablaCiclosBody">
+                        <div class="loading">Cargando ciclos académicos...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para agregar/editar ciclo -->
+    <div id="modalCiclo" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitulo">Nuevo Ciclo Académico</h2>
+            <form id="formCiclo">
+                <input type="hidden" id="cicloId">
+                
+                <div class="form-group">
+                    <label for="nombre">Nombre del Ciclo *</label>
+                    <input type="text" id="nombre" required placeholder="Ej: Ciclo 2024-I">
+                </div>
+                
+                <div class="form-group">
+                    <label for="precio">Precio (S/) *</label>
+                    <input type="number" id="precio" step="0.01" min="0" required placeholder="0.00">
+                </div>
+                
+                <div class="form-group">
+                    <label for="fechaInicio">Fecha de Inicio *</label>
+                    <input type="date" id="fechaInicio" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fechaFin">Fecha de Fin *</label>
+                    <input type="date" id="fechaFin" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="estado">Estado *</label>
+                    <select id="estado" required>
+                        <option value="planificado">Planificado</option>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" rows="3" placeholder="Descripción opcional del ciclo"></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="cerrarModalCiclo()" class="btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar Ciclo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/theme.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="/js/ciclos-management.js"></script>
+</body>
+</html>

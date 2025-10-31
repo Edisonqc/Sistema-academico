@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Permisos - Sistema Académico</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 id="pageTitle">🎛️ Gestión de Permisos</h1>
+            <nav class="breadcrumb">
+                <a href="/superadmin/dashboard.html">Dashboard</a> / 
+                <a href="/superadmin/usuarios.html">Usuarios</a> / 
+                <span>Permisos</span>
+            </nav>
+        </header>
+
+        <div class="filters">
+            <select id="filterRol" class="form-select">
+                <option value="">Todos los roles</option>
+                <option value="secretaria">Secretaria</option>
+                <option value="estudiante">Estudiante</option>
+            </select>
+            <select id="filterModulo" class="form-select">
+                <option value="">Todos los módulos</option>
+                <option value="usuarios">Usuarios</option>
+                <option value="estudiantes">Estudiantes</option>
+                <option value="matriculas">Matrículas</option>
+                <option value="pagos">Pagos</option>
+                <option value="asistencias">Asistencias</option>
+                <option value="reportes">Reportes</option>
+            </select>
+        </div>
+
+        <div class="table-container">
+            <table class="table" id="permisosTable">
+                <thead>
+                    <tr>
+                        <th>Rol</th>
+                        <th>Módulo</th>
+                        <th>Acción</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="permisosBody">
+                    <!-- Los permisos se cargarán aquí -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="resetToDefault()">
+                🔄 Restablecer por Defecto
+            </button>
+        </div>
+    </div>
+
+    <script src="/js/permisos-management.js"></script>
+</body>
+</html>

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Pagos - Sistema Académico</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .navbar {
+            background: var(--bg-color);
+            /*background-color: #fff;*/
+            /*background: var(--card-bg);*/
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+        }
+        
+        .navbar-brand {
+    
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: var(--card-bg);
+            height: calc(100vh - 70px);
+            position: fixed;
+            left: 0;
+            top: 70px;
+            border-right: 1px solid var(--border-color);
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+        
+        .sidebar-menu a.active {
+            background: var(--primary-color);
+            color: white;
+            border-left-color: var(--primary-dark);
+        }
+        
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .search-box input {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            width: 300px;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-group select {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        .pagos-table {
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .table-header {
+            display: grid;
+            grid-template-columns: 80px 120px 1fr 100px 100px 100px 120px 120px 150px;
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .table-row {
+            display: grid;
+            grid-template-columns: 80px 120px 1fr 100px 100px 100px 120px 120px 150px;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+        }
+        
+        .table-row:hover {
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .status-pagado { background: #d4edda; color: #155724; }
+        .status-pendiente { background: #fff3cd; color: #856404; }
+        .status-vencido { background: #f8d7da; color: #721c24; }
+        
+        .urgency-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        .urgency-normal { background: #17a2b8; color: white; }
+        .urgency-warning { background: #ffc107; color: black; }
+        .urgency-critical { background: #dc3545; color: white; }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-action {
+            padding: 0.25rem 0.5rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .btn-pagar { background: #28a745; color: white; }
+        .btn-detalles { background: #17a2b8; color: white; }
+        .btn-recordatorio { background: #ffc107; color: black; }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            margin: 2% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .close {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-color);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-full {
+            grid-column: 1 / -1;
+        }
+        
+        .payment-info {
+            background: rgba(0,0,0,0.02);
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+        
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            border-top: 4px solid var(--primary-color);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-pendientes { border-top-color: #ffc107; }
+        .stat-vencidos { border-top-color: #dc3545; }
+        .stat-pagados { border-top-color: #28a745; }
+        .stat-total { border-top-color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="navbar-brand">
+                💰 Control de Pagos
+            </div>
+            <div class="navbar-user">
+                <div class="user-info">
+                    <span id="userName">Cargando...</span>
+                    <span id="userRole" style="background: var(--primary-color); color: white; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.8rem;"></span>
+                </div>
+                <!-- <button onclick="goToDashboard()" class="btn-primary">Volver al Dashboard</button> -->
+                <button onclick="logout()" class="btn-logout">Cerrar Sesión</button>
+                <button id="themeToggle" class="btn-theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="/superadmin/dashboard.html">📊 Dashboard</a></li>
+                <li><a href="/superadmin/usuarios.html">👥 Gestión de Usuarios</a></li>
+                <li><a href="/superadmin/estudiantes.html">🎓 Estudiantes</a></li>
+                <li><a href="/superadmin/matriculas.html">📝 Matrículas</a></li>
+                <li><a href="/superadmin/ciclos.html">📚 Ciclos Académicos</a></li>
+                <li><a href="/superadmin/pagos.html" class="active">💰 Control de Pagos</a></li>
+                <li><a href="/superadmin/asistencias.html">✅ Asistencias</a></li>
+                <li><a href="/superadmin/reportes.html">📈 Reportes</a></li>
+                <li><a href="/superadmin/seguridad.html">🔐 Seguridad</a></li>
+                <li><a href="/superadmin/configuracion.html">⚙️ Configuración</a></li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container">
+                <div class="header-actions">
+                    <h1>Control de Pagos</h1>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Buscar por estudiante, boleta...">
+                        <button onclick="searchPagos()" class="btn-primary">Buscar</button>
+                    </div>
+                </div>
+                
+                <!-- Estadísticas de Pagos -->
+                <div class="stats-cards">
+                    <div class="stat-card stat-pendientes">
+                        <div class="stat-number" id="totalPendientes">0</div>
+                        <div class="stat-label">Pagos Pendientes</div>
+                    </div>
+                    <div class="stat-card stat-vencidos">
+                        <div class="stat-number" id="totalVencidos">0</div>
+                        <div class="stat-label">Pagos Vencidos</div>
+                    </div>
+                    <div class="stat-card stat-pagados">
+                        <div class="stat-number" id="totalPagados">0</div>
+                        <div class="stat-label">Pagos Realizados</div>
+                    </div>
+                    <div class="stat-card stat-total">
+                        <div class="stat-number" id="montoTotal">S/ 0</div>
+                        <div class="stat-label">Monto Total</div>
+                    </div>
+                </div>
+                
+                <!-- Filtros -->
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="filterEstado">Estado</label>
+                        <select id="filterEstado" onchange="applyFilters()">
+                            <option value="">Todos los estados</option>
+                            <option value="pendiente">Pendiente</option>
+                            <option value="pagado">Pagado</option>
+                            <option value="vencido">Vencido</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterUrgencia">Urgencia</label>
+                        <select id="filterUrgencia" onchange="applyFilters()">
+                            <option value="">Todas</option>
+                            <option value="normal">Normal</option>
+                            <option value="warning">Próximo a vencer</option>
+                            <option value="critical">Vencido</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterMes">Mes de Vencimiento</label>
+                        <select id="filterMes" onchange="applyFilters()">
+                            <option value="">Todos los meses</option>
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Tabla de Pagos -->
+                <div class="pagos-table">
+                    <div class="table-header">
+                        <div>ID</div>
+                        <div>Boleta</div>
+                        <div>Estudiante</div>
+                        <div>Cuota</div>
+                        <div>Monto</div>
+                        <div>Vencimiento</div>
+                        <div>Estado</div>
+                        <div>Urgencia</div>
+                        <div>Acciones</div>
+                    </div>
+                    
+                    <div id="pagosTableBody">
+                        <div class="loading">Cargando pagos...</div>
+                    </div>
+                </div>
+                
+                <div class="pagination" id="pagination">
+                    <!-- La paginación se generará aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para registrar pago -->
+    <div id="pagoModal" class="modal">
+        <div class="modal-content">
+            <button class="close" onclick="closePagoModal()">&times;</button>
+            <h2>Registrar Pago</h2>
+            
+            <div id="pagoInfo" class="payment-info">
+                <!-- Información del pago -->
+            </div>
+            
+            <form id="pagoForm">
+                <input type="hidden" id="pagoId">
+                <input type="hidden" id="matriculaId">
+                <input type="hidden" id="numeroCuota">
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="montoPago">Monto a Pagar *</label>
+                        <input type="number" id="montoPago" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="metodoPago">Método de Pago *</label>
+                        <select id="metodoPago" required>
+                            <option value="">Seleccionar</option>
+                            <option value="efectivo">Efectivo</option>
+                            <option value="tarjeta">Tarjeta</option>
+                            <option value="transferencia">Transferencia</option>
+                            <option value="deposito">Depósito</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaPago">Fecha de Pago *</label>
+                        <input type="date" id="fechaPago" required>
+                    </div>
+                    <div class="form-group form-full">
+                        <label for="observaciones">Observaciones</label>
+                        <textarea id="observaciones" rows="3" placeholder="Observaciones adicionales..."></textarea>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" onclick="closePagoModal()" class="btn-logout">Cancelar</button>
+                    <button type="submit" class="btn-primary">Registrar Pago</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/theme.js"></script>
+    <script src="/js/pagos-management.js"></script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Asistencias - Sistema Académico</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .navbar {
+            background: var(--bg-color);
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: var(--card-bg);
+            height: calc(100vh - 70px);
+            position: fixed;
+            left: 0;
+            top: 70px;
+            border-right: 1px solid var(--border-color);
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+        
+        .sidebar-menu a.active {
+            background: var(--primary-color);
+            color: white;
+            border-left-color: var(--primary-dark);
+        }
+        
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .search-box input {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            width: 300px;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .registro-rapido {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .registro-form {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        
+        .form-group input {
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .asistencias-table {
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .table-header {
+            display: grid;
+            grid-template-columns: 80px 100px 1fr 120px 120px 120px 100px;
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .table-row {
+            display: grid;
+            grid-template-columns: 80px 100px 1fr 120px 120px 120px 100px;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+        }
+        
+        .table-row:hover {
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .type-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        .type-manual { background: #17a2b8; color: white; }
+        .type-dni { background: #28a745; color: white; }
+        .type-qr { background: #6f42c1; color: white; }
+        
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            border-top: 4px solid var(--primary-color);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .stat-asistencias { border-top-color: #28a745; }
+        .stat-estudiantes { border-top-color: #17a2b8; }
+        .stat-porcentaje { border-top-color: #ffc107; }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-group select, .filter-group input {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            border-left: 4px solid #28a745;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .qr-scanner {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            text-align: center;
+            border: 2px dashed var(--border-color);
+        }
+        
+        .scanner-placeholder {
+            padding: 3rem;
+            background: rgba(0,0,0,0.02);
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="navbar-brand">
+                ✅ Control de Asistencias
+            </div>
+            <div class="navbar-user">
+                <div class="user-info">
+                    <span id="userName">Cargando...</span>
+                    <span id="userRole" style="background: var(--primary-color); color: white; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.8rem;"></span>
+                </div>
+                <button onclick="logout()" class="btn-logout">Cerrar Sesión</button>
+                <button id="themeToggle" class="btn-theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="/superadmin/dashboard.html">📊 Dashboard</a></li>
+                <li><a href="/superadmin/usuarios.html">👥 Gestión de Usuarios</a></li>
+                <li><a href="/superadmin/estudiantes.html">🎓 Estudiantes</a></li>
+                <li><a href="/superadmin/matriculas.html">📝 Matrículas</a></li>
+                <li><a href="/superadmin/ciclos.html">📚 Ciclos Académicos</a></li>
+                <li><a href="/superadmin/pagos.html">💰 Control de Pagos</a></li>
+                <li><a href="/superadmin/asistencias.html" class="active">✅ Asistencias</a></li>
+                <li><a href="/superadmin/reportes.html">📈 Reportes</a></li>
+                <li><a href="/superadmin/seguridad.html">🔐 Seguridad</a></li>
+                <li><a href="/superadmin/configuracion.html">⚙️ Configuración</a></li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container">
+                <div class="header-actions">
+                    <h1>Control de Asistencias</h1>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Buscar por DNI, nombre...">
+                        <button onclick="searchAsistencias()" class="btn-primary">Buscar</button>
+                    </div>
+                </div>
+                
+                <!-- Estadísticas -->
+                <div class="stats-cards">
+                    <div class="stat-card stat-asistencias">
+                        <div class="stat-number" id="totalAsistenciasHoy">0</div>
+                        <div class="stat-label">Asistencias Hoy</div>
+                    </div>
+                    <div class="stat-card stat-estudiantes">
+                        <div class="stat-number" id="totalEstudiantes">0</div>
+                        <div class="stat-label">Estudiantes Activos</div>
+                    </div>
+                    <div class="stat-card stat-porcentaje">
+                        <div class="stat-number" id="porcentajeAsistencia">0%</div>
+                        <div class="stat-label">Porcentaje de Asistencia</div>
+                    </div>
+                </div>
+                
+                <!-- Registro Rápido -->
+                <div class="registro-rapido">
+                    <h3>🎯 Registro Rápido de Asistencia</h3>
+                    <div class="registro-form">
+                        <div class="form-group">
+                            <label for="dniInput">Ingresar DNI del Estudiante</label>
+                            <input type="text" id="dniInput" placeholder="Ej: 12345678" maxlength="8" pattern="[0-9]{8}" autofocus>
+                        </div>
+                        <button id="btnRegistrarAsistencia" class="btn-primary">Registrar Asistencia</button>
+                    </div>
+                    <div id="registroResult"></div>
+                </div>
+                
+                <!-- Escáner QR (Placeholder) -->
+                <div class="qr-scanner">
+                    <h3>📷 Escáner de Código QR</h3>
+                    <p>Utilice la cámara para escanear códigos QR de estudiantes</p>
+                    <div class="scanner-placeholder">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📱</div>
+                        <p>Área del escáner QR</p>
+                        <small>Funcionalidad en desarrollo</small>
+                    </div>
+                    <button onclick="iniciarEscanner()" class="btn-primary" style="margin-top: 1rem;">
+                        Iniciar Escáner
+                    </button>
+                </div>
+                
+                <!-- Filtros -->
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="filterFecha">Fecha</label>
+                        <input type="date" id="filterFecha" onchange="applyFilters()">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterTipo">Tipo de Registro</label>
+                        <select id="filterTipo" onchange="applyFilters()">
+                            <option value="">Todos los tipos</option>
+                            <option value="manual">Manual</option>
+                            <option value="dni">DNI</option>
+                            <option value="qr">QR</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Tabla de Asistencias -->
+                <div class="asistencias-table">
+                    <div class="table-header">
+                        <div>ID</div>
+                        <div>DNI</div>
+                        <div>Estudiante</div>
+                        <div>Fecha</div>
+                        <div>Hora</div>
+                        <div>Tipo</div>
+                        <div>Acciones</div>
+                    </div>
+                    
+                    <div id="asistenciasTableBody">
+                        <div class="loading">Cargando asistencias...</div>
+                    </div>
+                </div>
+                
+                <div class="pagination" id="pagination">
+                    <!-- La paginación se generará aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/theme.js"></script>
+    <script src="/js/asistencias-management.js"></script>
+</body>
+</html>

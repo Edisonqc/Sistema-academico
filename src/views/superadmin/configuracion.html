@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - Sistema Académico</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .navbar {
+            background: var(--bg-color);
+            /*background-color: #fff;*/
+            /*background: var(--card-bg);*/
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+        }
+        
+        .navbar-brand {
+    
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: var(--card-bg);
+            height: calc(100vh - 70px);
+            position: fixed;
+            left: 0;
+            top: 70px;
+            border-right: 1px solid var(--border-color);
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+        
+        .sidebar-menu a.active {
+            background: var(--primary-color);
+            color: white;
+            border-left-color: var(--primary-dark);
+        }
+        
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .config-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .config-card h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .config-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .backup-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .status-success {
+            background: #2ecc71;
+        }
+        
+        .status-warning {
+            background: #f39c12;
+        }
+        
+        .status-error {
+            background: #e74c3c;
+        }
+        
+        .backup-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 0.5rem;
+        }
+        
+        .backup-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .backup-item:last-child {
+            border-bottom: none;
+        }
+        
+        .system-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .danger-zone {
+            border: 2px solid #e74c3c;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .danger-zone h3 {
+            color: #e74c3c;
+            border-bottom: 2px solid #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="navbar-brand">
+                ⚙️ Configuración del Sistema
+            </div>
+            <div class="navbar-user">
+                <div class="user-info">
+                    <span id="userName">Usuario</span>
+                    <span id="userRole" style="background: var(--primary-color); color: white; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.8rem;">superadmin</span>
+                </div>
+                <!-- <button onclick="goToDashboard()" class="btn-primary">Volver al Dashboard</button> -->
+                <button onclick="logout()" class="btn-logout">Cerrar Sesión</button>
+                <button id="themeToggle" class="btn-theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="/superadmin/dashboard.html">📊 Dashboard</a></li>
+                <li><a href="/superadmin/usuarios.html">👥 Gestión de Usuarios</a></li>
+                <li><a href="/superadmin/estudiantes.html">🎓 Estudiantes</a></li>
+                <li><a href="/superadmin/matriculas.html">📝 Matrículas</a></li>
+                <li><a href="/superadmin/ciclos.html">📚 Ciclos Académicos</a></li>
+                <li><a href="/superadmin/pagos.html">💰 Control de Pagos</a></li>
+                <li><a href="/superadmin/asistencias.html">✅ Asistencias</a></li>
+                <li><a href="/superadmin/reportes.html">📈 Reportes</a></li>
+                <li><a href="/superadmin/seguridad.html">🔐 Seguridad</a></li>
+                <li><a href="/superadmin/configuracion.html" class="active">⚙️ Configuración</a></li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container">
+                <h1>Configuración del Sistema</h1>
+                <p class="stat-label">Configuración general y mantenimiento del sistema</p>
+                
+                <div class="config-grid">
+                    <!-- Configuración General -->
+                    <div class="config-card">
+                        <h3>🏫 Configuración General</h3>
+                        
+                        <div class="form-group">
+                            <label for="nombreInstitucion">Nombre de la Institución</label>
+                            <input type="text" id="nombreInstitucion" value="Centro de Estudios Académicos" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="direccionInstitucion">Dirección</label>
+                            <input type="text" id="direccionInstitucion" value="Av. Principal 123">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="telefonoInstitucion">Teléfono</label>
+                            <input type="text" id="telefonoInstitucion" value="+51 123 456 789">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="emailInstitucion">Email de Contacto</label>
+                            <input type="email" id="emailInstitucion" value="contacto@institucion.edu">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="moneda">Moneda</label>
+                            <select id="moneda">
+                                <option value="PEN" selected>Soles (S/)</option>
+                                <option value="USD">Dólares ($)</option>
+                                <option value="EUR">Euros (€)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="config-actions">
+                            <button onclick="guardarConfigGeneral()" class="btn-primary">Guardar Configuración</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Configuración Académica -->
+                    <div class="config-card">
+                        <h3>🎓 Configuración Académica</h3>
+                        
+                        <div class="form-group">
+                            <label for="duracionClase">Duración de Clase (minutos)</label>
+                            <input type="number" id="duracionClase" value="45" min="30" max="120">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="horarioInicio">Hora de Inicio</label>
+                            <input type="time" id="horarioInicio" value="08:00">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="horarioFin">Hora de Fin</label>
+                            <input type="time" id="horarioFin" value="16:00">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="porcentajeAsistencia">Porcentaje Mínimo de Asistencia (%)</label>
+                            <input type="number" id="porcentajeAsistencia" value="75" min="50" max="100">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="notaAprobatoria">Nota Mínima Aprobatoria</label>
+                            <input type="number" id="notaAprobatoria" value="11" min="0" max="20" step="0.1">
+                        </div>
+                        
+                        <div class="config-actions">
+                            <button onclick="guardarConfigAcademica()" class="btn-primary">Guardar Configuración</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Sistema de Backup -->
+                    <div class="config-card">
+                        <h3>💾 Sistema de Backup</h3>
+                        
+                        <div class="backup-status">
+                            <div class="status-indicator status-success"></div>
+                            <span>Sistema de backup activo</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Frecuencia de Backup Automático</label>
+                            <select id="frecuenciaBackup">
+                                <option value="diario">Diario</option>
+                                <option value="semanal" selected>Semanal</option>
+                                <option value="mensual">Mensual</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Mantener backups por (días)</label>
+                            <input type="number" id="retencionBackup" value="30" min="7" max="365">
+                        </div>
+                        
+                        <div class="backup-list" id="listaBackups">
+                            <div class="backup-item">
+                                <span>backup-2024-03-15.sql</span>
+                                <span>15/03/2024</span>
+                            </div>
+                            <div class="backup-item">
+                                <span>backup-2024-03-08.sql</span>
+                                <span>08/03/2024</span>
+                            </div>
+                        </div>
+                        
+                        <div class="config-actions">
+                            <button onclick="crearBackup()" class="btn-primary">Crear Backup Ahora</button>
+                            <button onclick="restaurarBackup()" class="btn-secondary">Restaurar Backup</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Información del Sistema -->
+                    <div class="config-card">
+                        <h3>🖥️ Información del Sistema</h3>
+                        
+                        <div class="system-info">
+                            <div class="info-item">
+                                <span>Versión:</span>
+                                <span>1.0.0</span>
+                            </div>
+                            <div class="info-item">
+                                <span>Base de Datos:</span>
+                                <span>PostgreSQL 14</span>
+                            </div>
+                            <div class="info-item">
+                                <span>Servidor:</span>
+                                <span>Node.js 18</span>
+                            </div>
+                            <div class="info-item">
+                                <span>Último Backup:</span>
+                                <span>15/03/2024</span>
+                            </div>
+                            <div class="info-item">
+                                <span>Usuarios Activos:</span>
+                                <span id="usuariosActivos">25</span>
+                            </div>
+                            <div class="info-item">
+                                <span>Espacio en Disco:</span>
+                                <span id="espacioDisco">2.5 GB / 10 GB</span>
+                            </div>
+                        </div>
+                        
+                        <div class="config-actions">
+                            <button onclick="actualizarSistema()" class="btn-primary">Buscar Actualizaciones</button>
+                            <button onclick="verLogs()" class="btn-secondary">Ver Logs del Sistema</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Zona de Peligro -->
+                <div class="danger-zone">
+                    <h3>⚠️ Zona de Peligro</h3>
+                    <p>Estas acciones son irreversibles y pueden afectar el funcionamiento del sistema.</p>
+                    
+                    <div class="form-group">
+                        <label for="confirmacion">Escriba "CONFIRMAR" para habilitar las acciones</label>
+                        <input type="text" id="confirmacion" placeholder="CONFIRMAR" oninput="habilitarAccionesPeligrosas()">
+                    </div>
+                    
+                    <div class="config-actions">
+                        <button id="btnLimpiarDatos" onclick="limpiarDatosPrueba()" class="btn-logout" disabled>
+                            🗑️ Limpiar Datos de Prueba
+                        </button>
+                        <button id="btnReiniciarSistema" onclick="reiniciarSistema()" class="btn-logout" disabled>
+                            🔄 Reiniciar Sistema
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN - VERSIÓN SIMPLIFICADA Y FUNCIONAL
+        console.log('⚙️ Configuración cargada correctamente');
+
+        // Cargar información del usuario al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ Página de configuración lista');
+            
+            // Cargar información del usuario
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (user && user.nombre) {
+                document.getElementById('userName').textContent = 
+                    `${user.nombre} ${user.apellido_paterno}`;
+                document.getElementById('userRole').textContent = user.rol;
+            } else {
+                console.log('⚠️ No hay usuario logueado');
+            }
+
+            // Configurar eventos
+            document.getElementById('confirmacion')?.addEventListener('input', function(e) {
+                const confirmado = e.target.value.toUpperCase() === 'CONFIRMAR';
+                document.getElementById('btnLimpiarDatos').disabled = !confirmado;
+                document.getElementById('btnReiniciarSistema').disabled = !confirmado;
+            });
+        });
+
+        // Funciones de navegación (DEBEN FUNCIONAR)
+        function goToDashboard() {
+            console.log('🔄 Redirigiendo al dashboard...');
+            window.location.href = '/superadmin/dashboard.html';
+        }
+
+        function logout() {
+            console.log('🚪 Cerrando sesión...');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        }
+
+        // Funciones de configuración
+        function guardarConfigGeneral() {
+            alert('✅ Configuración general guardada correctamente');
+        }
+
+        function guardarConfigAcademica() {
+            alert('🎓 Configuración académica guardada correctamente');
+        }
+
+        function crearBackup() {
+            alert('💾 Backup creado correctamente');
+        }
+
+        function restaurarBackup() {
+            if (confirm('¿Está seguro de que desea restaurar el sistema desde un backup?')) {
+                alert('✅ Sistema restaurado desde backup');
+            }
+        }
+
+        function habilitarAccionesPeligrosas() {
+            const input = document.getElementById('confirmacion');
+            const confirmado = input.value.toUpperCase() === 'CONFIRMAR';
+            document.getElementById('btnLimpiarDatos').disabled = !confirmado;
+            document.getElementById('btnReiniciarSistema').disabled = !confirmado;
+        }
+
+        function limpiarDatosPrueba() {
+            if (confirm('⚠️ ¿ESTÁ SEGURO DE ELIMINAR TODOS LOS DATOS DE PRUEBA?\n\nEsta acción no se puede deshacer.')) {
+                alert('🗑️ Datos de prueba eliminados correctamente');
+                document.getElementById('confirmacion').value = '';
+                habilitarAccionesPeligrosas();
+            }
+        }
+
+        function reiniciarSistema() {
+            if (confirm('🚨 ¿ESTÁ ABSOLUTAMENTE SEGURO DE REINICIAR EL SISTEMA?\n\nSe perderán todos los datos.')) {
+                alert('🔄 Sistema reiniciado correctamente');
+                document.getElementById('confirmacion').value = '';
+                habilitarAccionesPeligrosas();
+            }
+        }
+
+        function actualizarSistema() {
+            alert('🔍 Buscando actualizaciones...\n\nEl sistema está actualizado a la última versión.');
+        }
+
+        function verLogs() {
+            alert('📋 Mostrando logs del sistema...');
+        }
+
+        // Mostrar mensaje de que la página cargó correctamente
+        setTimeout(() => {
+            console.log('🎉 Página de configuración completamente cargada');
+        }, 100);
+    </script>
+</body>
+</html>

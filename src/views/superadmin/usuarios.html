@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios - Sistema Académico</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .navbar {
+            background: var(--bg-color);
+            /*background-color: #fff;*/
+            /*background: var(--card-bg);*/
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+        }
+        
+        .navbar-brand {
+    
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: var(--card-bg);
+            height: calc(100vh - 70px);
+            position: fixed;
+            left: 0;
+            top: 70px;
+            border-right: 1px solid var(--border-color);
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+        
+        .sidebar-menu a.active {
+            background: var(--primary-color);
+            color: white;
+            border-left-color: var(--primary-dark);
+        }
+        
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .search-box input {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        .btn-add {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .users-table {
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        
+        .table-header {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr 1fr 1fr 120px 150px;
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .table-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr 1fr 1fr 120px 150px;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+        }
+        
+        .table-row:hover {
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .role-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        .role-superadmin { background: #6610f2; color: white; }
+        .role-admin { background: #007bff; color: white; }
+        .role-secretaria { background: #6f42c1; color: white; }
+        .role-estudiante { background: #28a745; color: white; }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-action {
+            padding: 0.25rem 0.5rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .btn-edit { background: #ffc107; color: black; }
+        .btn-reset { background: #17a2b8; color: white; }
+        .btn-delete { background: #dc3545; color: white; }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 500px;
+            position: relative;
+        }
+        
+        .close {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-full {
+            grid-column: 1 / -1;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        
+
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Navbar (mismo que el dashboard) -->
+        <nav class="navbar">
+            <div class="navbar-brand">
+                🎓 Gestión de Usuarios
+            </div>
+            <div class="navbar-user">
+                <div class="user-info">
+                    <span id="userName">Cargando...</span>
+                    <span id="userRole" style="background: var(--primary-color); color: white; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.8rem;"></span>
+                </div>
+                <!-- <button onclick="goToDashboard()" class="btn-primary">Volver al Dashboard</button> -->
+                <button onclick="logout()" class="btn-logout">Cerrar Sesión</button>
+                <button id="themeToggle" class="btn-theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Sidebar (mismo que el dashboard) -->
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="/superadmin/dashboard.html">📊 Dashboard</a></li>
+                <li><a href="/superadmin/usuarios.html" class="active">👥 Gestión de Usuarios</a></li>
+                <li><a href="/superadmin/estudiantes.html">🎓 Estudiantes</a></li>
+                <li><a href="/superadmin/matriculas.html">📝 Matrículas</a></li> <!-- AGREGAR -->
+                <li><a href="/superadmin/ciclos.html">📚 Ciclos Académicos</a></li>
+                <li><a href="/superadmin/pagos.html">💰 Control de Pagos</a></li>
+                <li><a href="/superadmin/asistencias.html">✅ Asistencias</a></li>
+                <li><a href="/superadmin/reportes.html">📈 Reportes</a></li>
+                <li><a href="/superadmin/seguridad.html">🔐 Seguridad</a></li>
+                <li><a href="/superadmin/configuracion.html">⚙️ Configuración</a></li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container">
+                <div class="header-actions">
+                    <h1>Gestión de Usuarios</h1>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Buscar por DNI, nombre...">
+                        <button onclick="searchUsers()" class="btn-primary">Buscar</button>
+                    </div>
+                    <button class="btn-add" onclick="showAddUserModal()">
+                        ➕ Agregar Usuario
+                    </button>
+                </div>
+                
+                <div class="users-table">
+                    <div class="table-header">
+                        <div>ID</div>
+                        <div>DNI</div>
+                        <div>Nombre</div>
+                        <div>Rol</div>
+                        <div>Contacto</div>
+                        <div>Estado</div>
+                        <div>Acciones</div>
+                    </div>
+                    
+                    <div id="usersTableBody">
+                        <div class="loading">Cargando usuarios...</div>
+                    </div>
+                </div>
+                
+                <div class="pagination" id="pagination">
+                    <!-- La paginación se generará aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para agregar/editar usuario -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeUserModal()">&times;</span>
+            <h2 id="modalTitle">Agregar Usuario</h2>
+            <form id="userForm">
+                <input type="hidden" id="userId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="dni">DNI *</label>
+                        <input type="text" id="dni" required maxlength="8" pattern="[0-9]{8}">
+                    </div>
+                    <div class="form-group">
+                        <label for="rol">Rol *</label>
+                        <select id="rol" required>
+                            <option value="">Seleccionar rol</option>
+                            <option value="admin">Administrador</option>
+                            <option value="secretaria">Secretaria</option>
+                            <option value="estudiante">Estudiante</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="nombre">Nombre *</label>
+                        <input type="text" id="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="apellido_paterno">Apellido Paterno *</label>
+                        <input type="text" id="apellido_paterno" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="apellido_materno">Apellido Materno</label>
+                        <input type="text" id="apellido_materno">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email">
+                    </div>
+                    <div class="form-group form-full">
+                        <label for="telefono">Teléfono</label>
+                        <input type="text" id="telefono">
+                    </div>
+                    <div class="form-group form-full" id="passwordField">
+                        <label for="password">Contraseña *</label>
+                        <input type="password" id="password" required minlength="6">
+                    </div>
+                </div>
+                <div style="margin-top: 1rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeUserModal()" class="btn-logout">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/theme.js"></script>
+    <script src="/js/usuarios-management.js"></script>
+</body>
+</html>

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes y Análisis - Sistema Académico</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .navbar {
+            background: var(--bg-color);
+            /*background-color: #fff;*/
+            /*background: var(--card-bg);*/
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+        }
+        
+        .navbar-brand {
+    
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: var(--card-bg);
+            height: calc(100vh - 70px);
+            position: fixed;
+            left: 0;
+            top: 70px;
+            border-right: 1px solid var(--border-color);
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+        
+        .sidebar-menu a.active {
+            background: var(--primary-color);
+            color: white;
+            border-left-color: var(--primary-dark);
+        }
+        
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .tabs {
+            display: flex;
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-container {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .chart-title {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        
+        .filters {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-group label {
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        
+        .filter-group input, .filter-group select {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            min-width: 150px;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .btn-export {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-pdf {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-excel {
+            background: #28a745;
+            color: white;
+        }
+        
+        .report-table {
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .table-header {
+            display: grid;
+            grid-template-columns: 80px 120px 1fr 100px 120px 120px 100px;
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .table-row {
+            display: grid;
+            grid-template-columns: 80px 120px 1fr 100px 120px 120px 100px;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+        }
+        
+        .table-row:hover {
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .summary-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .summary-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="navbar-brand">
+                📊 Reportes y Análisis
+            </div>
+            <div class="navbar-user">
+                <div class="user-info">
+                    <span id="userName">Cargando...</span>
+                    <span id="userRole" style="background: var(--primary-color); color: white; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.8rem;"></span>
+                </div>
+                <!-- <button onclick="goToDashboard()" class="btn-primary">Volver al Dashboard</button> -->
+                <button onclick="logout()" class="btn-logout">Cerrar Sesión</button>
+                <button id="themeToggle" class="btn-theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="/superadmin/dashboard.html">📊 Dashboard</a></li>
+                <li><a href="/superadmin/usuarios.html">👥 Gestión de Usuarios</a></li>
+                <li><a href="/superadmin/estudiantes.html">🎓 Estudiantes</a></li>
+                <li><a href="/superadmin/matriculas.html">📝 Matrículas</a></li>
+                <li><a href="/superadmin/ciclos.html">📚 Ciclos Académicos</a></li>
+                <li><a href="/superadmin/pagos.html">💰 Control de Pagos</a></li>
+                <li><a href="/superadmin/asistencias.html">✅ Asistencias</a></li>
+                <li><a href="/superadmin/reportes.html" class="active">📈 Reportes</a></li>
+                <li><a href="/superadmin/seguridad.html">🔐 Seguridad</a></li>
+                <li><a href="/superadmin/configuracion.html">⚙️ Configuración</a></li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container">
+                <div class="header-actions">
+                    <h1>Reportes y Análisis</h1>
+                    <button onclick="generarReporteCompleto()" class="btn-primary">
+                        🔄 Actualizar Reportes
+                    </button>
+                </div>
+                
+                <!-- Tabs -->
+                <div class="tabs">
+                    <div class="tab active" onclick="cambiarTab('general')">📈 General</div>
+                    <div class="tab" onclick="cambiarTab('pagos')">💰 Pagos</div>
+                    <div class="tab" onclick="cambiarTab('asistencias')">✅ Asistencias</div>
+                    <div class="tab" onclick="cambiarTab('exportar')">📤 Exportar</div>
+                </div>
+                
+                <!-- Tab: General -->
+                <div id="tab-general" class="tab-content active">
+                    <!-- Estadísticas Rápidas -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalUsuarios">0</div>
+                            <div class="stat-label">Usuarios Totales</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalEstudiantes">0</div>
+                            <div class="stat-label">Estudiantes Activos</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalMatriculas">0</div>
+                            <div class="stat-label">Matrículas</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalPagos">0</div>
+                            <div class="stat-label">Pagos Registrados</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Gráficos -->
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <div class="chart-title">Ingresos Mensuales</div>
+                            <canvas id="chartIngresos" height="250"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">Asistencias Mensuales</div>
+                            <canvas id="chartAsistencias" height="250"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">Estado de Pagos</div>
+                            <canvas id="chartEstadoPagos" height="250"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">Distribución por Roles</div>
+                            <canvas id="chartRoles" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tab: Pagos -->
+                <div id="tab-pagos" class="tab-content">
+                    <div class="filters">
+                        <h3>Filtros de Reporte de Pagos</h3>
+                        <div class="filter-row">
+                            <div class="filter-group">
+                                <label for="fechaInicioPagos">Fecha Inicio</label>
+                                <input type="date" id="fechaInicioPagos">
+                            </div>
+                            <div class="filter-group">
+                                <label for="fechaFinPagos">Fecha Fin</label>
+                                <input type="date" id="fechaFinPagos">
+                            </div>
+                            <div class="filter-group">
+                                <label for="estadoPago">Estado</label>
+                                <select id="estadoPago">
+                                    <option value="">Todos</option>
+                                    <option value="pendiente">Pendiente</option>
+                                    <option value="pagado">Pagado</option>
+                                    <option value="vencido">Vencido</option>
+                                </select>
+                            </div>
+                            <button onclick="generarReportePagos()" class="btn-primary">Generar Reporte</button>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-cards" id="resumenPagos">
+                        <!-- Resumen se generará aquí -->
+                    </div>
+                    
+                    <div class="report-table">
+                        <div class="table-header">
+                            <div>ID</div>
+                            <div>Boleta</div>
+                            <div>Estudiante</div>
+                            <div>Cuota</div>
+                            <div>Monto</div>
+                            <div>Fecha Venc.</div>
+                            <div>Estado</div>
+                        </div>
+                        <div id="tablaPagosBody">
+                            <div class="loading">Seleccione filtros y genere el reporte</div>
+                        </div>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button onclick="exportarPagosPDF()" class="btn-export btn-pdf">
+                            📄 Exportar a PDF
+                        </button>
+                        <button onclick="exportarPagosExcel()" class="btn-export btn-excel">
+                            📊 Exportar a Excel
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Tab: Asistencias -->
+                <div id="tab-asistencias" class="tab-content">
+                    <div class="filters">
+                        <h3>Filtros de Reporte de Asistencias</h3>
+                        <div class="filter-row">
+                            <div class="filter-group">
+                                <label for="fechaInicioAsistencias">Fecha Inicio</label>
+                                <input type="date" id="fechaInicioAsistencias">
+                            </div>
+                            <div class="filter-group">
+                                <label for="fechaFinAsistencias">Fecha Fin</label>
+                                <input type="date" id="fechaFinAsistencias">
+                            </div>
+                            <div class="filter-group">
+                                <label for="tipoRegistro">Tipo Registro</label>
+                                <select id="tipoRegistro">
+                                    <option value="">Todos</option>
+                                    <option value="manual">Manual</option>
+                                    <option value="dni">Por DNI</option>
+                                    <option value="qr">Por QR</option>
+                                </select>
+                            </div>
+                            <button onclick="generarReporteAsistencias()" class="btn-primary">Generar Reporte</button>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-cards" id="resumenAsistencias">
+                        <!-- Resumen se generará aquí -->
+                    </div>
+                    
+                    <div class="report-table">
+                        <div class="table-header">
+                            <div>ID</div>
+                            <div>DNI</div>
+                            <div>Estudiante</div>
+                            <div>Fecha</div>
+                            <div>Hora</div>
+                            <div>Tipo</div>
+                            <div>Ciclo</div>
+                        </div>
+                        <div id="tablaAsistenciasBody">
+                            <div class="loading">Seleccione filtros y genere el reporte</div>
+                        </div>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button onclick="exportarAsistenciasPDF()" class="btn-export btn-pdf">
+                            📄 Exportar a PDF
+                        </button>
+                        <button onclick="exportarAsistenciasExcel()" class="btn-export btn-excel">
+                            📊 Exportar a Excel
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Tab: Exportar -->
+                <div id="tab-exportar" class="tab-content">
+                    <div class="chart-container">
+                        <h3>Exportar Reportes Completos</h3>
+                        <p>Seleccione el tipo de reporte que desea exportar:</p>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 2rem;">
+                            <div class="summary-card">
+                                <h4>📈 Reporte General</h4>
+                                <p>Reporte completo del sistema con todas las estadísticas</p>
+                                <div class="export-buttons" style="margin-top: 1rem;">
+                                    <button onclick="exportarGeneralPDF()" class="btn-export btn-pdf" style="padding: 0.5rem 1rem;">
+                                        PDF
+                                    </button>
+                                    <button onclick="exportarGeneralExcel()" class="btn-export btn-excel" style="padding: 0.5rem 1rem;">
+                                        Excel
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="summary-card">
+                                <h4>💰 Reporte de Pagos</h4>
+                                <p>Detalle completo de pagos y estados de cuotas</p>
+                                <div class="export-buttons" style="margin-top: 1rem;">
+                                    <button onclick="exportarPagosCompletoPDF()" class="btn-export btn-pdf" style="padding: 0.5rem 1rem;">
+                                        PDF
+                                    </button>
+                                    <button onclick="exportarPagosCompletoExcel()" class="btn-export btn-excel" style="padding: 0.5rem 1rem;">
+                                        Excel
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="summary-card">
+                                <h4>✅ Reporte de Asistencias</h4>
+                                <p>Historial completo de asistencias registradas</p>
+                                <div class="export-buttons" style="margin-top: 1rem;">
+                                    <button onclick="exportarAsistenciasCompletoPDF()" class="btn-export btn-pdf" style="padding: 0.5rem 1rem;">
+                                        PDF
+                                    </button>
+                                    <button onclick="exportarAsistenciasCompletoExcel()" class="btn-export btn-excel" style="padding: 0.5rem 1rem;">
+                                        Excel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/theme.js"></script>
+    <script src="/js/reportes-management.js"></script>
+</body>
+</html>

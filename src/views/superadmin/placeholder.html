@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sección en Desarrollo - Sistema Académico</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .placeholder-container {
+            text-align: center;
+            padding: 4rem;
+        }
+        .construction-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <nav class="navbar">
+            <div class="navbar-brand">🎓 Sistema Académico</div>
+            <div class="navbar-user">
+                <button onclick="goToDashboard()" class="btn-primary">Volver al Dashboard</button>
+                <button onclick="logout()" class="btn-logout">Cerrar Sesión</button>
+                
+            </div>
+        </nav>
+        
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="/superadmin/dashboard.html">📊 Dashboard</a></li>
+                <li><a href="/superadmin/usuarios.html">👥 Gestión de Usuarios</a></li>
+                <li><a href="/superadmin/estudiantes.html">🎓 Estudiantes</a></li>
+                <li><a href="/superadmin/ciclos.html">📚 Ciclos Académicos</a></li>
+                <li><a href="/superadmin/pagos.html">💰 Control de Pagos</a></li>
+                <li><a href="/superadmin/asistencias.html">✅ Asistencias</a></li>
+                <li><a href="/superadmin/reportes.html">📈 Reportes</a></li>
+                <li><a href="/superadmin/seguridad.html">🔐 Seguridad</a></li>
+                <li><a href="/superadmin/configuracion.html">⚙️ Configuración</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <div class="placeholder-container">
+                <div class="construction-icon">🚧</div>
+                <h1>Sección en Desarrollo</h1>
+                <p>Esta funcionalidad estará disponible próximamente</p>
+                <p>Estamos trabajando para brindarte la mejor experiencia</p>
+                <button onclick="goToDashboard()" class="btn-primary" style="margin-top: 2rem;">
+                    Volver al Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goToDashboard() {
+            window.location.href = '/superadmin/dashboard.html';
+        }
+        
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

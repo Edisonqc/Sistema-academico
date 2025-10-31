@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Matrículas - Sistema Académico</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .navbar {
+            background: var(--bg-color);
+            /*background-color: #fff;*/
+            /*background: var(--card-bg);*/
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+        }
+        
+        .navbar-brand {
+    
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: var(--card-bg);
+            height: calc(100vh - 70px);
+            position: fixed;
+            left: 0;
+            top: 70px;
+            border-right: 1px solid var(--border-color);
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+        
+        .sidebar-menu a.active {
+            background: var(--primary-color);
+            color: white;
+            border-left-color: var(--primary-dark);
+        }
+        
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .search-box input {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            width: 300px;
+        }
+        
+        .btn-add {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+        }
+        
+        .matriculas-table {
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .table-header {
+            display: grid;
+            grid-template-columns: 80px 120px 1fr 1fr 1fr 100px 100px 120px 150px;
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .table-row {
+            display: grid;
+            grid-template-columns: 80px 120px 1fr 1fr 1fr 100px 100px 120px 150px;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+        }
+        
+        .table-row:hover {
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .status-activo { background: #d4edda; color: #155724; }
+        .status-inactivo { background: #f8d7da; color: #721c24; }
+        .status-completado { background: #d1ecf1; color: #0c5460; }
+        
+        .payment-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        .payment-pagado { background: #28a745; color: white; }
+        .payment-pendiente { background: #ffc107; color: black; }
+        .payment-vencido { background: #dc3545; color: white; }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-action {
+            padding: 0.25rem 0.5rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .btn-edit { background: #ffc107; color: black; }
+        .btn-view { background: #17a2b8; color: white; }
+        .btn-pagos { background: #28a745; color: white; }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            margin: 1% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 1000px;
+            max-height: 95vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .close {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-color);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-full {
+            grid-column: 1 / -1;
+        }
+        
+        .form-section {
+            background: rgba(0,0,0,0.02);
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .form-section h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+        
+        .student-info {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+        
+        .cuotas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .cuota-card {
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        
+        .cuota-numero {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+        
+        .cuota-monto {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        
+        .cuota-fecha {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .price-summary {
+            background: rgba(40, 167, 69, 0.1);
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .price-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+        }
+        
+        .price-total {
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="navbar-brand">
+                🎓 Gestión de Matrículas
+            </div>
+            <div class="navbar-user">
+                <div class="user-info">
+                    <span id="userName">Cargando...</span>
+                    <span id="userRole" style="background: var(--primary-color); color: white; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.8rem;"></span>
+                </div>
+                <!-- <button onclick="goToDashboard()" class="btn-primary">Volver al Dashboard</button> -->
+                <button onclick="logout()" class="btn-logout">Cerrar Sesión</button>
+                <button id="themeToggle" class="btn-theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="/superadmin/dashboard.html">📊 Dashboard</a></li>
+                <li><a href="/superadmin/usuarios.html">👥 Gestión de Usuarios</a></li>
+                <li><a href="/superadmin/estudiantes.html">🎓 Estudiantes</a></li>
+                <li><a href="/superadmin/matriculas.html" class="active">📝 Matrículas</a></li>
+                <li><a href="/superadmin/ciclos.html">📚 Ciclos Académicos</a></li>
+                <li><a href="/superadmin/pagos.html">💰 Control de Pagos</a></li>
+                <li><a href="/superadmin/asistencias.html">✅ Asistencias</a></li>
+                <li><a href="/superadmin/reportes.html">📈 Reportes</a></li>
+                <li><a href="/superadmin/seguridad.html">🔐 Seguridad</a></li>
+                <li><a href="/superadmin/configuracion.html">⚙️ Configuración</a></li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container">
+                <div class="header-actions">
+                    <h1>Gestión de Matrículas</h1>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Buscar por boleta, DNI, nombre...">
+                        <button onclick="searchMatriculas()" class="btn-primary">Buscar</button>
+                    </div>
+                    <button class="btn-add" onclick="showAddMatriculaModal()">
+                        📝 Nueva Matrícula
+                    </button>
+                </div>
+                
+                <div class="matriculas-table">
+                    <div class="table-header">
+                        <div>ID</div>
+                        <div>Boleta</div>
+                        <div>Estudiante</div>
+                        <div>Ciclo</div>
+                        <div>Fecha</div>
+                        <div>Método Pago</div>
+                        <div>Descuento</div>
+                        <div>Estado</div>
+                        <div>Acciones</div>
+                    </div>
+                    
+                    <div id="matriculasTableBody">
+                        <div class="loading">Cargando matrículas...</div>
+                    </div>
+                </div>
+                
+                <div class="pagination" id="pagination">
+                    <!-- La paginación se generará aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- Modal para nueva matrícula -->
+    <div id="matriculaModal" class="modal">
+        <div class="modal-content">
+            <button class="close" onclick="closeMatriculaModal()">&times;</button>
+            <h2 id="modalTitle">Nueva Matrícula</h2>
+            
+            <form id="matriculaForm">
+                <input type="hidden" id="matriculaId">
+                
+                <!-- Información de la Matrícula -->
+                <div class="form-section">
+                    <h3>📋 Información de la Matrícula</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="numero_boleta">Número de Boleta *</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="numero_boleta" required style="flex: 1;">
+                                <button type="button" onclick="generarBoleta()" class="btn-primary">Generar</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="metodo_pago">Método de Pago *</label>
+                            <select id="metodo_pago" required>
+                                <option value="">Seleccionar</option>
+                                <option value="efectivo">Efectivo</option>
+                                <option value="tarjeta">Tarjeta</option>
+                                <option value="transferencia">Transferencia</option>
+                                <option value="deposito">Depósito</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="aula">Aula *</label>
+                            <input type="text" id="aula" required placeholder="Ej: A-101">
+                        </div>
+                        <div class="form-group">
+                            <label for="descuento">Descuento (%)</label>
+                            <input type="number" id="descuento" min="0" max="100" value="0" step="0.01">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Selección de Estudiante -->
+                <div class="form-section">
+                    <h3>🎓 Seleccionar Estudiante</h3>
+                    <div class="form-grid">
+                        <div class="form-group form-full">
+                            <label for="buscar_estudiante">Buscar Estudiante (por DNI o nombre)</label>
+                            <input type="text" id="buscar_estudiante" placeholder="Ingrese DNI o nombre del estudiante...">
+                            <div id="resultadosEstudiantes" style="margin-top: 0.5rem; max-height: 200px; overflow-y: auto; display: none;"></div>
+                        </div>
+                    </div>
+                    <div id="estudianteSeleccionado" class="student-info" style="display: none;">
+                        <!-- Información del estudiante seleccionado -->
+                    </div>
+                    <input type="hidden" id="estudiante_id">
+                </div>
+                
+                <!-- Selección de Ciclo -->
+                <div class="form-section">
+                    <h3>📚 Seleccionar Ciclo Académico</h3>
+                    <div class="form-grid">
+                        <div class="form-group form-full">
+                            <select id="ciclo_id" required>
+                                <option value="">Seleccionar ciclo académico</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="infoCiclo" class="price-summary" style="display: none;">
+                        <!-- Información del ciclo seleccionado -->
+                    </div>
+                </div>
+                
+                <!-- Configuración de Cuotas -->
+                <div class="form-section">
+                    <h3>💰 Configuración de Cuotas</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="numero_cuotas">Número de Cuotas</label>
+                            <select id="numero_cuotas" onchange="calcularCuotas()">
+                                <option value="1">1 cuota</option>
+                                <option value="2">2 cuotas</option>
+                                <option value="3">3 cuotas</option>
+                                <option value="4">4 cuotas</option>
+                                <option value="5">5 cuotas</option>
+                                <option value="6">6 cuotas</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fecha_primer_vencimiento">Primer Vencimiento</label>
+                            <input type="date" id="fecha_primer_vencimiento" onchange="calcularCuotas()">
+                        </div>
+                    </div>
+                    <div id="cuotasContainer" class="cuotas-grid">
+                        <!-- Cuotas generadas automáticamente -->
+                    </div>
+                </div>
+                
+                <!-- Resumen de Precios -->
+                <div id="resumenPrecios" class="price-summary" style="display: none;">
+                    <h3>💵 Resumen de Pagos</h3>
+                    <div id="detallesPrecio">
+                        <!-- Detalles de precios -->
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeMatriculaModal()" class="btn-logout">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar Matrícula</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/theme.js"></script>
+    <script src="/js/matriculas-management.js"></script>
+</body>
+</html>

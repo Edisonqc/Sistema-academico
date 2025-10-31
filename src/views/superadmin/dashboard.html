@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema Académico</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .dashboard {
+            min-height: 100vh;
+            background: var(--bg-color);
+        }
+        
+        .navbar {
+            background: var(--bg-color);
+            /*background-color: #fff;*/
+            /*background: var(--card-bg);*/
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+        }
+        
+        .navbar-brand {
+    
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: var(--card-bg);
+            height: calc(100vh - 70px);
+            position: fixed;
+            left: 0;
+            top: 70px;
+            border-right: 1px solid var(--border-color);
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+        
+        .sidebar-menu a.active {
+            background: var(--primary-color);
+            color: white;
+            border-left-color: var(--primary-dark);
+        }
+        
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card.loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            min-height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 0 0 10px 0;
+        }
+        
+        .section {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .btn-logout {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .btn-logout:hover {
+            background: #c0392b;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .action-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: block;
+        }
+        
+        .action-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .recent-activity {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .activity-item {
+            padding: 0.75rem;
+            border-left: 3px solid var(--primary-color);
+            background: rgba(52, 152, 219, 0.05);
+            margin-bottom: 0.5rem;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .welcome-message {
+            background: linear-gradient(135deg, var(--primary-color), #667eea);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .refresh-btn {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.3s ease;
+        }
+        
+        .refresh-btn:hover {
+            background: #27ae60;
+        }
+        
+        .refresh-btn.loading {
+            background: var(--text-muted);
+            cursor: not-allowed;
+        }
+        
+        .system-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 5px;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .status-online {
+            background: #2ecc71;
+        }
+        
+        .status-offline {
+            background: #e74c3c;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .last-updated {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="navbar-brand">
+                🎓 Sistema Académico - Superadmin
+            </div>
+            <div class="navbar-user">
+                <div class="user-info">
+                    <span id="userName">Cargando...</span>
+                    <span id="userRole" style="background: var(--primary-color); color: white; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.8rem;"></span>
+                </div>
+                <button onclick="logout()" class="btn-logout">Cerrar Sesión</button>
+                <button id="themeToggle" class="btn-theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="/superadmin/dashboard.html" class="active">📊 Dashboard</a></li>
+                <li><a href="/superadmin/usuarios.html">👥 Gestión de Usuarios</a></li>
+                <li><a href="/superadmin/estudiantes.html">🎓 Estudiantes</a></li>
+                <li><a href="/superadmin/matriculas.html">📝 Matrículas</a></li>
+                <li><a href="/superadmin/ciclos.html">📚 Ciclos Académicos</a></li>
+                <li><a href="/superadmin/pagos.html">💰 Control de Pagos</a></li>
+                <li><a href="/superadmin/asistencias.html">✅ Asistencias</a></li>
+                <li><a href="/superadmin/reportes.html">📈 Reportes</a></li>
+                <li><a href="/superadmin/seguridad.html">🔐 Seguridad</a></li>
+                <li><a href="/superadmin/configuracion.html">⚙️ Configuración</a></li>
+            </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Mensaje de Bienvenida -->
+            <div class="welcome-message">
+                <h1>¡Bienvenido al Sistema Académico!</h1>
+                <p>Panel de Control del Superadministrador</p>
+            </div>
+
+            <div class="header-actions">
+                <h1>Dashboard del Superadministrador</h1>
+                <button id="refreshBtn" onclick="refreshDashboard()" class="refresh-btn">
+                    🔄 Actualizar Datos
+                </button>
+            </div>
+            
+            <p class="stat-label">Resumen general del sistema - <span id="lastUpdated">Última actualización: Cargando...</span></p>
+
+            <!-- Mensaje de error -->
+            <div id="errorMessage" class="error-message" style="display: none;">
+                ❌ Error cargando datos. Mostrando información de ejemplo.
+            </div>
+            
+            <!-- Estadísticas Principales -->
+            <div class="stats-grid">
+                <div class="stat-card" id="cardUsers">
+                    <div class="stat-number" id="totalUsers">0</div>
+                    <div class="stat-label">Total Usuarios</div>
+                </div>
+                <div class="stat-card" id="cardStudents">
+                    <div class="stat-number" id="totalStudents">0</div>
+                    <div class="stat-label">Estudiantes Registrados</div>
+                </div>
+                <div class="stat-card" id="cardAdmins">
+                    <div class="stat-number" id="totalAdmins">0</div>
+                    <div class="stat-label">Administradores</div>
+                </div>
+                <div class="stat-card" id="cardMatriculas">
+                    <div class="stat-number" id="totalMatriculas">0</div>
+                    <div class="stat-label">Matrículas Activas</div>
+                </div>
+            </div>
+
+            <!-- Estadísticas Secundarias -->
+            <div class="stats-grid">
+                <div class="stat-card" id="cardPagosPendientes">
+                    <div class="stat-number" id="totalPagosPendientes">0</div>
+                    <div class="stat-label">Pagos Pendientes</div>
+                </div>
+                <div class="stat-card" id="cardSecretarias">
+                    <div class="stat-number" id="totalSecretarias">0</div>
+                    <div class="stat-label">Secretarias</div>
+                </div>
+                <div class="stat-card" id="cardPagosHoy">
+                    <div class="stat-number" id="pagosHoy">0</div>
+                    <div class="stat-label">Pagos Hoy</div>
+                </div>
+                <div class="stat-card" id="cardIngresos">
+                    <div class="stat-number" id="ingresosMes">S/ 0</div>
+                    <div class="stat-label">Ingresos del Mes</div>
+                </div>
+            </div>
+            
+            <!-- Acciones Rápidas -->
+            <div class="section">
+                <div class="section-title">Acciones Rápidas</div>
+                <div class="quick-actions">
+                    <a href="/superadmin/usuarios.html" class="action-btn">
+                        <div>👥</div>
+                        <div>Gestión de Usuarios</div>
+                    </a>
+                    <a href="/superadmin/estudiantes.html" class="action-btn">
+                        <div>🎓</div>
+                        <div>Gestión de Estudiantes</div>
+                    </a>
+                    <a href="/superadmin/matriculas.html" class="action-btn">
+                        <div>📝</div>
+                        <div>Nueva Matrícula</div>
+                    </a>
+                    <a href="/superadmin/reportes.html" class="action-btn">
+                        <div>📈</div>
+                        <div>Reportes del Sistema</div>
+                    </a>
+                    <a href="/superadmin/configuracion.html" class="action-btn">
+                        <div>⚙️</div>
+                        <div>Configuración</div>
+                    </a>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <!-- Actividad Reciente -->
+                <div class="section">
+                    <div class="section-title">Actividad Reciente del Sistema</div>
+                    <div class="recent-activity" id="recentActivity">
+                        <div class="activity-item">
+                            <div>✅ Sistema iniciado correctamente</div>
+                            <div class="activity-time" id="systemStartTime">Cargando...</div>
+                        </div>
+                        <div class="activity-item">
+                            <div>🔐 Sesión de superadministrador iniciada</div>
+                            <div class="activity-time" id="loginTime">Cargando...</div>
+                        </div>
+                        <div class="activity-item">
+                            <div>📊 Dashboard cargado exitosamente</div>
+                            <div class="activity-time" id="dashboardLoadTime">Cargando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información del Sistema -->
+                <div class="section">
+                    <div class="section-title">Estado del Sistema</div>
+                    <div class="system-status">
+                        <div class="status-item">
+                            <div class="status-indicator status-online"></div>
+                            <span>Servidor Web</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-indicator status-online"></div>
+                            <span>Base de Datos</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-indicator status-online"></div>
+                            <span>API Backend</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-indicator status-online"></div>
+                            <span>Autenticación</span>
+                        </div>
+                    </div>
+                    
+                    <!-- <div style="margin-top: 1.5rem;">
+                        <h4>📋 Funcionalidades Disponibles</h4>
+                        <ul>
+                            <li>✅ Gestión completa de usuarios</li>
+                            <li>✅ Sistema de autenticación seguro</li>
+                            <li>✅ Modo claro/oscuro</li>
+                            <li>✅ Dashboard con estadísticas</li>
+                            <li>🔄 Gestión de estudiantes</li>
+                            <li>🔄 Control de pagos</li>
+                            <li>🔄 Sistema de asistencias</li>
+                        </ul>
+                    </div> -->
+                </div>
+            </div>
+
+            <div class="last-updated">
+                Sistema Académico v1.0.0 | <span id="currentTime">Cargando...</span>
+            </div>
+        </div>
+    </div>
+        <!-- Scripts -->
+    <script src="/js/dashboard.js"></script>
+    <script src="/js/theme.js"></script>
+</body>
+</html>
